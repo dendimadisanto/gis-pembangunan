@@ -1,6 +1,7 @@
 import Map from '../components/Map.vue';
 import SumberDana from '../components/SumberDana/Main';
-import FormAddDana from '../components/SumberDana/FormAdd';
+import KegiatanFisik from '../components/KegiatanFisik/Main';
+import FormKegiatan from '../components/KegiatanFisik/Form';
 
 // membuat router
 const routes = [
@@ -15,9 +16,14 @@ const routes = [
         component: SumberDana
     },
     {
-        name: 'form-dana',
-        path: '/form-add-dana',
-        component: FormAddDana
+        name: 'kegiatan_fisik',
+        path: '/kegiatan_fisik',
+        component: KegiatanFisik
+    },
+    {
+        name: 'form_kegiatan',
+        path: '/form-kegiatan/:id',
+        component: FormKegiatan
     },
 ]
 

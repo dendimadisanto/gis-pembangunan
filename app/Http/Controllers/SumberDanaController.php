@@ -3,20 +3,45 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\SumberDana;
+use App\Models\SumberDana;
 
 class SumberDanaController extends Controller
 {
 
-   function get(){
-       try{
-            $table = new SumberDana();
-            $res = $table->all();
 
+   function all(){
+       try{
+            $res = SumberDana::all();
             if($res){
                 $out = [
                     'success' => true,
-                    'data' => $res 
+                    'results' => $res
+                ];
+            }
+            else{
+                $out = $this->res_error;
+            }
+
+            return response()->json($out);
+       }
+       catch(Exception $error){
+            response()->json($this->res_error);
+       }
+   }
+
+   function get(){
+       try{
+            $table = new SumberDana();
+            $res = $table->paginate(10);
+            $data = [];
+
+            foreach($res as $key => $value){
+               $res[$key]['no'] = $key + 1;
+            }
+            if($res){
+                $out = [
+                    'success' => true,
+                    'data' => $res ,
                 ];
             }
             else{
@@ -65,13 +90,11 @@ class SumberDanaController extends Controller
 
    function addData(Request $request){
     try {
-        $this->validate($request,[
-            'sumber_dana' => 'required',
-            'file' => 'required|mimes:jpg,png,jpeg'
-        ]);
-
         if($request->id==0){
-            $filename='no_image.jpg';
+            $this->validate($request,[
+                'sumber_dana' => 'required',
+                'file' => 'required|mimes:jpg,png,jpeg'
+            ]);
             if ($request->hasFile('file')) {
                 $file = $request->file('file');
                 $filename = time() . '.' . $file->getClientOriginalExtension();
@@ -83,6 +106,28 @@ class SumberDanaController extends Controller
             );
             
             $res = SumberDana::create($params);
+        }
+
+        else{
+            
+            $this->validate($request,[
+                'sumber_dana' => 'required',
+            ]);
+            
+            $filename = $request->icon;
+            if ($request->hasFile('file')) {
+                if(file_exists($this->path_icon.$filename)){
+                    unlink($this->path_icon.$filename);
+                }
+                $file = $request->file('file');
+                $filename = time() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path("upload/marker"), $filename);
+            }
+
+            $tabel = SumberDana::find($request->id);
+            $tabel->nama = $request->sumber_dana;
+            $tabel->icon = $filename;
+            $res = $tabel->save();
         }
        
 
@@ -108,5 +153,39 @@ class SumberDanaController extends Controller
         ]);
     }
    
+   }
+
+   function hapus($id){
+       try{
+            $tabel = SumberDana::find($id);
+            $icon = $tabel->icon;
+            
+            if(file_exists($this->path_icon.$icon)){
+                unlink($this->path_icon.$icon);
+            }
+
+            $res = $tabel->delete();
+            if($res){
+                $out = [
+                    'success' => true,
+                    'msg' => 'Data Berhasil Di Hapus' 
+                ];
+            }
+            else{
+                $out = [
+                    'success' => false,
+                    'msg' => 'Data Gagal Di Hapus' 
+                ];
+            }
+    
+
+            return response()->json($out);
+       }
+       catch(Exception $error){
+        return response()->json([
+            'success' => false,
+            'msg' => 'Ada Kesalahan Server' 
+        ]);
+       }
    }
 }

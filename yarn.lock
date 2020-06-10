@@ -6496,7 +6496,7 @@ svgo@^1.0.0:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-sweetalert2@9.x:
+sweetalert2@9.x, sweetalert2@^9.14.0:
   version "9.14.0"
   resolved "https://registry.yarnpkg.com/sweetalert2/-/sweetalert2-9.14.0.tgz#2ae59c417745ae9360e47d7745a39be3ecbee1a2"
   integrity sha512-NXxaR5ZsT9JQ+pEH0lQPa6fzFr7Uqx2VNI3dcPBShwTngQkVLXzEJYB0XjWAx/oBLAIPyHlc/tc3bkojJ2HYzg==
@@ -6849,6 +6849,11 @@ vue-axios@^2.1.5:
   resolved "https://registry.yarnpkg.com/vue-axios/-/vue-axios-2.1.5.tgz#1af4bf1218ed71309c76afb38d0f683e312c24a7"
   integrity sha512-th5xVbInVoyIoe+qY+9GCflEVezxAvztD4xpFF39SRQYqpoKD2qkmX8yv08jJG9a2SgNOCjirjJGSwg/wTrbmA==
 
+vue-class-component@^7.1.0:
+  version "7.2.3"
+  resolved "https://registry.yarnpkg.com/vue-class-component/-/vue-class-component-7.2.3.tgz#a5b1abd53513a72ad51098752e2dedd499807cca"
+  integrity sha512-oEqYpXKaFN+TaXU+mRLEx8dX0ah85aAJEe61mpdoUrq0Bhe/6sWhyZX1JjMQLhVsHAkncyhedhmCdDVSasUtDw==
+
 vue-functional-data-merge@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/vue-functional-data-merge/-/vue-functional-data-merge-3.1.0.tgz#08a7797583b7f35680587f8a1d51d729aa1dc657"
@@ -6869,6 +6874,18 @@ vue-loader@^15.4.2:
     loader-utils "^1.1.0"
     vue-hot-reload-api "^2.3.0"
     vue-style-loader "^4.1.0"
+
+vue-loading-overlay@^3.3.2:
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/vue-loading-overlay/-/vue-loading-overlay-3.3.2.tgz#9853c90d9583ac2ec322da29bb90942bf65449af"
+  integrity sha512-5nBsaeb3quOBVXCgbSu9VNWkBVEsbDCupahv8dqkgbtJ00uKoNOPyw38+reWGHKNDBDl+x7x8wT8u3dV7ali7g==
+
+vue-property-decorator@^8.4.2:
+  version "8.4.2"
+  resolved "https://registry.yarnpkg.com/vue-property-decorator/-/vue-property-decorator-8.4.2.tgz#016e17f259f73bc547e77a50ce282ba18db4ee41"
+  integrity sha512-IqbARlvgPE2pzKfbecKxsu2yEH0Wv7hfHR6m4eZA3LTnNw9hveAX77vDfLFyTeMISS5N7Kucp/xRSHjcQ6bAfQ==
+  dependencies:
+    vue-class-component "^7.1.0"
 
 vue-router@^3.3.2:
   version "3.3.2"

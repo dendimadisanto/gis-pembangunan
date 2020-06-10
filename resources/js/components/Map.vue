@@ -1,27 +1,54 @@
 <template>
-<l-map style="height: 600px; width: 100%" :zoom="zoom" :center="center">
-<l-control-layers position="topright"  ></l-control-layers>
-<l-tile-layer
-      v-for="tileProvider in tileProviders"
-      :key="tileProvider.name"
-      :name="tileProvider.name"
-      :visible="tileProvider.visible"
-      :url="tileProvider.url"
-      :attribution="tileProvider.attribution"
-      layer-type="base"/>
-<l-geo-json :geojson="geojson"></l-geo-json>
-<!-- <l-marker :lat-lng="center" :draggable="isdrag" v-on:drag="dragging"></l-marker> -->
-<l-marker  v-for="(item, index) in marker" :lat-lng="marker[index]" :key="index" >
-    <l-icon
-          :icon-size="dynamicSize"
-          :icon-anchor="dynamicAnchor"
-          icon-url="https://img.icons8.com/material/4ac144/256/user-male.png" >
-  </l-icon>
-    <l-popup>
-      <button class="btn btn-info">detail</button>
-    </l-popup>
-</l-marker>
-</l-map>
+<div class="content">
+    <div class="filter" style="margin:1rem">
+        <div class="row">
+            <div class="col-sm-2">
+                Tahun
+                <select v-model="tahun" @change="getKegiatan">
+                    <option v-for=" i in 3" :value="new Date().getFullYear() - (3 - i)">{{new Date().getFullYear() - (3 - i)}}</option>
+                    <option v-for=" i in 3" :value="new Date().getFullYear() + 1">{{new Date().getFullYear() + i}}</option>
+                </select>
+            </div>
+            <div class="col-sm-8">
+                 Sumber Dana
+                   <select v-model="sumber_dana_id" @change="getKegiatan">
+                        <option value="0">Semua</option>
+                        <option v-for="(value, index) in sumberDana" :value="value.id">{{value.nama}}</option>
+                    </select>
+            </div>
+        </div>
+    </div>
+    <div class="map">
+      <l-map style="height: 560px; width: 100%" :zoom="zoom" :center="center">
+      <l-control-layers position="topright"  ></l-control-layers>
+        <l-tile-layer
+              v-for="tileProvider in tileProviders"
+              :key="tileProvider.name"
+              :name="tileProvider.name"
+              :visible="tileProvider.visible"
+              :url="tileProvider.url"
+              :attribution="tileProvider.attribution"
+              layer-type="base"/>
+        <l-geo-json :geojson="geojson"></l-geo-json>
+        <l-marker  v-for="(item, index) in data" :lat-lng="[item['lat'],item['lng']]" :key="index" >
+            <l-icon
+                  :icon-size="dynamicSize"
+                  :icon-anchor="dynamicAnchor"
+                  :icon-url="baseURL + '/upload/marker/' + item['sumber_dana'].icon" >
+          </l-icon>
+            <l-popup>
+              <div class="card" style="width: 18rem;">
+                <img class="card-img-top" src="https://i.pinimg.com/originals/43/a9/67/43a96748d7b52118930709194d381d6d.png" alt="Card image cap">
+                <div class="card-body" style="text-align:center">
+                   <button class="btn btn-primary">Detail</button>
+                </div>
+              </div>
+            </l-popup>
+        </l-marker>
+      </l-map>
+    </div>
+</div>
+
 </template>
 
 <script>
@@ -35,13 +62,15 @@ export default {
     LGeoJson,
     LMarker,
     LPopup,
-     LIcon
+    LIcon
   },
   data () {
     return {
+      tahun:new Date().getFullYear(),
+      data:[],
+      baseURL:App.baseURL,
       url:'https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZGVuZGkiLCJhIjoiY2thdnM4bzJsMTU4ZTJ1cGhvd3V6cGF4ZyJ9.XUd4BVBF12fVpfwUoWv0Hg',
       zoom: 15,
-      isdrag:true,
       center: [-7.898452568570932, 110.29196285286662],
       tileProviders: [
         {
@@ -60,13 +89,16 @@ export default {
         },
       ],
        geojson:[],
-       marker:[ [-7.93493,110.481997],[-7.7795895,110.34770333]],
+       marker:[],
+       sumberDana:[],
+       sumber_dana_id:0,
          iconSize: 64
     };
   },
-  created(){
+  beforeMount(){
         this.getGeoJson();
-        console.log(this.url);
+        this.getKegiatan();
+        this.getSumberDana();
   },
   computed: {
     dynamicSize () {
@@ -78,18 +110,40 @@ export default {
   },
   methods:{
         async getGeoJson(){
-              await axios.get('http://localhost:8000/get-data-gis')
+              await axios.get(App.baseURL + '/get-data-gis',App.request)
                   .then(response =>{
-                        this.geojson = response.data.features;
-                        console.log(response);
+                      if(response.data.success){
+                        let json = JSON.parse(response.data.result.geojson);
+                         this.geojson = json.features;
+                      }
+                       
                   }).catch(error=>{
 
                   });
                  
         },
-        dragging(e){
-          console.log(e);
-        }
+        async getKegiatan(){
+            let params = {};
+            params.tahun = this.tahun;
+            params.sumber_dana_id = this.sumber_dana_id;
+            await axios.post(App.baseURL + '/get-gis-kegiatan', params,App.request).then(response=>{
+                if(response.data.success){
+                  this.data = response.data.result;
+                }
+            })
+        },
+        async getSumberDana(){
+           await axios.get(App.baseURL + '/get-sumber-dana-all', App.request).then(response => {
+                if(response.data.success){
+                    this.sumberDana = response.data.results
+                }
+                else{
+                     Swal.fire('Informasi', 'Ada Kesalahan Server' ,'error');
+                }
+            }).catch(error=>{
+                 Swal.fire('Informasi', 'Ada Kesalahan Server' ,'error');
+            });
+        },
   }
 }
 </script>
